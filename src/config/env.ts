@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const env = {
-    port: Number(process.env.PORT) || 3001,
-    mongoUri: process.env.MONGO_URI || '',
-    jwtSecret: process.env.JWT_SECRET || 'secret_film_app',
-    jwtExpiration: process.env.JWT_EXPIRATION || '10h'
+    port: Number(process.env.port) || 3001,
+    mongoUri: process.env.mongo_Uri || '',
+    jwtSecret: process.env.jwtSecret || 'secret_film_app',
+    jwtExpiration: process.env.jwtExpiration || '10h'
 };
