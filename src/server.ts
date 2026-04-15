@@ -4,8 +4,8 @@ import { connectDB } from './config/database';
 
 const bootstrap = async () => {
     await connectDB();
-    app.listen(env.port, () => {
-        console.log(`Servidor corriendo en puerto http://localhost:${env.port}`);
+    app.listen(env.PORT, () => {
+        console.log(`Servidor corriendo en puerto http://localhost:${env.PORT}`);
     });
 };
 
