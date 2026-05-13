@@ -11,7 +11,7 @@ const filmsController = new FilmsController();
  * @openapi
  * tags:
  *   name: Films
- *   description: Gestión de películas y series
+ *   description: Gestión de películas y series. Permite registrar, consultar, actualizar, eliminar y calificar películas y series del usuario autenticado.
  */
 
 /**
@@ -19,7 +19,8 @@ const filmsController = new FilmsController();
  * /v1/films:
  *   post:
  *     tags: [Films]
- *     summary: Crear una película o serie
+ *     summary: Agregar una película o serie
+ *     description: Registra una nueva película o serie en la lista del usuario autenticado.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -28,17 +29,17 @@ const filmsController = new FilmsController();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [title, year, genre, type, status]
+ *             required: [title, year, genre, type]
  *             properties:
  *               title:
  *                 type: string
- *                 example: michael
+ *                 example: Inception
  *               year:
  *                 type: number
- *                 example: 2026
+ *                 example: 2010
  *               genre:
  *                 type: string
- *                 example: action
+ *                 example: Ciencia ficción
  *               type:
  *                 type: string
  *                 enum: [movie, series]
@@ -49,53 +50,59 @@ const filmsController = new FilmsController();
  *                 example: pending
  *     responses:
  *       201:
- *         description: Película creada exitosamente
+ *         description: Película creada exitosamente.
+ *       400:
+ *         description: Datos inválidos.
  *       401:
- *         description: No autorizado
+ *         description: Token no proporcionado o inválido.
  *   get:
  *     tags: [Films]
- *     summary: Obtener todas las películas
+ *     summary: Obtener todas las películas del usuario
+ *     description: Retorna la lista de películas y series registradas por el usuario autenticado.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lista de películas
+ *         description: Lista de películas obtenida exitosamente.
  *       401:
- *         description: No autorizado
+ *         description: Token no proporcionado o inválido.
  */
 router.post('/', authMiddleware, validate(createFilmSchema), filmsController.create);
-
 /**
  * @openapi
  * /v1/films/{id}:
  *   get:
  *     tags: [Films]
  *     summary: Obtener una película por ID
+ *     description: Retorna la información detallada de una película o serie específica.
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID único de la película en MongoDB
  *         schema:
  *           type: string
  *         example: 69d7f9b0f26a3534059c57d5
  *     responses:
  *       200:
- *         description: Película encontrada
+ *         description: Película encontrada exitosamente.
  *       404:
- *         description: No encontrada
+ *         description: La película no existe.
  *       401:
- *         description: No autorizado
+ *         description: Token no proporcionado o inválido.
  *   put:
  *     tags: [Films]
  *     summary: Actualizar una película
+ *     description: Actualiza la información de una película o serie. Solo se actualizan los campos enviados.
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID único de la película en MongoDB
  *         schema:
  *           type: string
  *         example: 69d7f9b0f26a3534059c57d5
@@ -108,33 +115,39 @@ router.post('/', authMiddleware, validate(createFilmSchema), filmsController.cre
  *             properties:
  *               title:
  *                 type: string
- *                 example: "Spiderman - Director's Cut"
+ *                 example: Inception - Director's Cut
  *               status:
  *                 type: string
  *                 enum: [pending, watched]
  *                 example: watched
  *     responses:
  *       200:
- *         description: Película actualizada
+ *         description: Película actualizada exitosamente.
+ *       404:
+ *         description: La película no existe.
  *       401:
- *         description: No autorizado
+ *         description: Token no proporcionado o inválido.
  *   delete:
  *     tags: [Films]
  *     summary: Eliminar una película
+ *     description: Desactiva una película de la lista del usuario (soft delete).
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID único de la película en MongoDB
  *         schema:
  *           type: string
  *         example: 69d7f9b0f26a3534059c57d5
  *     responses:
  *       200:
- *         description: Película eliminada
+ *         description: Película eliminada exitosamente.
+ *       404:
+ *         description: La película no existe.
  *       401:
- *         description: No autorizado
+ *         description: Token no proporcionado o inválido.
  */
 router.get('/', authMiddleware, filmsController.findAll);
 router.get('/:id', authMiddleware, filmsController.findById);
@@ -146,12 +159,14 @@ router.delete('/:id', authMiddleware, filmsController.delete);
  *   patch:
  *     tags: [Films]
  *     summary: Calificar una película
+ *     description: Registra una calificación de 1 a 5 estrellas y una reseña opcional para una película. Al calificar, el estado de la película cambia automáticamente a "watched".
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID único de la película en MongoDB
  *         schema:
  *           type: string
  *         example: 69d7f9b0f26a3534059c57d5
@@ -161,20 +176,23 @@ router.delete('/:id', authMiddleware, filmsController.delete);
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [rating]
  *             properties:
  *               rating:
  *                 type: number
- *                 nullable: true
- *                 example: null
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
  *               review:
  *                 type: string
- *                 nullable: true
- *                 example: null
+ *                 example: Una obra maestra del cine moderno.
  *     responses:
  *       200:
- *         description: Calificación registrada
+ *         description: Calificación registrada exitosamente.
+ *       404:
+ *         description: La película no existe.
  *       401:
- *         description: No autorizado
+ *         description: Token no proporcionado o inválido.
  */
 router.patch('/:id/rate', authMiddleware, filmsController.rate);
 

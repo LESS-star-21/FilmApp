@@ -10,16 +10,16 @@ const authController = new AuthController();
  * @openapi
  * tags:
  *   name: Auth
- *   description: Autenticación de usuarios
+ *   description: Endpoints para autenticación de usuarios. Permite registrarse e iniciar sesión para obtener un token JWT.
  */
 
-/**
 /**
  * @openapi
  * /v1/auth/register:
  *   post:
  *     tags: [Auth]
  *     summary: Registrar un nuevo usuario
+ *     description: Crea una nueva cuenta de usuario. La contraseña se encripta automáticamente con bcrypt antes de guardarse en la base de datos.
  *     requestBody:
  *       required: true
  *       content:
@@ -30,27 +30,30 @@ const authController = new AuthController();
  *             properties:
  *               name:
  *                 type: string
- *                 example: Maria
+ *                 minLength: 4
+ *                 example: Maria Garcia
  *               email:
  *                 type: string
- *                 example: mari@email.com
+ *                 format: email
+ *                 example: maria@email.com
  *               password:
  *                 type: string
+ *                 minLength: 6
  *                 example: "123456"
  *     responses:
  *       201:
- *         description: Usuario registrado exitosamente
+ *         description: Usuario registrado exitosamente. Retorna el token JWT y los datos del usuario.
  *       400:
- *         description: Datos inválidos
+ *         description: Datos inválidos o el email ya está registrado.
  */
 router.post('/register', validate(registerSchema), authController.register);
-
 /**
  * @openapi
  * /v1/auth/login:
  *   post:
  *     tags: [Auth]
  *     summary: Iniciar sesión
+ *     description: Autentica al usuario con email y contraseña. Retorna un token JWT válido por 10 horas que debe usarse en los demás endpoints.
  *     requestBody:
  *       required: true
  *       content:
@@ -61,17 +64,17 @@ router.post('/register', validate(registerSchema), authController.register);
  *             properties:
  *               email:
  *                 type: string
- *                 example: ana@email.com
+ *                 format: email
+ *                 example: maria@email.com
  *               password:
  *                 type: string
  *                 example: "123456"
  *     responses:
  *       200:
- *         description: Login exitoso, retorna token JWT
+ *         description: Login exitoso. Retorna el token JWT y los datos del usuario.
  *       401:
- *         description: Credenciales inválidas
+ *         description: Credenciales inválidas.
  */
-
 router.post('/login', validate(loginSchema), authController.login);
 
 export default router;

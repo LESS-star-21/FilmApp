@@ -14,7 +14,11 @@ const options: swaggerJSDoc.Options = {
       {
         url: 'http://localhost:3001/api',
         description: 'Documentation of the endpoints of the api movies and series',
-      }
+      },
+      {
+        url: 'https://filmapp-ecz6.onrender.com/api',
+        description: 'Servidor Producción',
+    }
     ],
     components: {
       securitySchemes: {
