@@ -56,7 +56,7 @@ const listsController = new ListsController();
  *       401:
  *         description: Token no proporcionado o inválido.
  */
-router.post('/',                    authMiddleware, validate(createListSchema), listsController.create);
+router.post('/',authMiddleware, validate(createListSchema), listsController.create);
 /**
  * @openapi
  * /v1/lists/{id}:
